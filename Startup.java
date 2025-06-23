@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -14,6 +15,8 @@ class Startup {
             System.out.println("You guessed: " + userInput);
             String[][] feedback = playGame.checkGuess(userInput, assignStartupsValues);
             System.out.println(gameHelper.printGameStatus(feedback));
+            String result = playGame.announceResult(feedback);
+            System.out.println(result);
             userInput = gameHelper.getUserInput();
         }
     }
@@ -64,6 +67,10 @@ class CreateStartups {
             if(!growRight && growDown) {
                 System.out.println("Growing Down");
                 return growDown();
+            }
+
+            if(!growRight && !growDown) {
+                continue;
             }
         }
 
@@ -131,6 +138,42 @@ class CreateStartups {
             }
         }
         return startupNames; // User guessed incorrectly
+    }
+
+    public String announceResult(String[][] startups) {
+        ArrayList<String> sunkStartup = new ArrayList<String>();
+        String finalResult = "";
+        Boolean isHit = false;
+        int sunkStartupCount = 0;
+        for (int i = 0; i < startups.length; i++) {
+            startupNames[i][0] = startups[i][0];
+            int gussedCount = 0;
+            for (int j = 1; j < startups[i].length; j++) {
+                if (startups[i][j] != null && startups[i][j].equalsIgnoreCase("GUSSED")) {
+                    isHit = true;
+                    gussedCount++;
+                }
+            }
+
+            if(gussedCount == 3) {
+                sunkStartup.add(startups[i][0]);
+            } 
+        }
+
+        if(!isHit) {
+            finalResult = "Miss :(";
+        } else {
+            finalResult = "Hit!";
+            if(sunkStartup.size() > sunkStartupCount) {
+                finalResult += " You sunk "+sunkStartup.getLast();
+                sunkStartupCount++;
+            } 
+
+            if(sunkStartup.size() == 3) {
+                finalResult += " You sunk all the startups now!";
+            } 
+        }
+        return finalResult.toString();
     }
  }
 
