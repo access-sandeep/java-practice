@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -5,44 +6,55 @@ import java.util.Scanner;
 class NewProgramBuster {
     private static CreateNewPrograms anotherClass = new CreateNewPrograms();
     private static GameHelper gameHelper = new GameHelper();
-    private static PlayGame playGame = new PlayGame();
+    // private static PlayGame playGame = new PlayGame();
     public static void main(String[] args) {
         // String userInput = gameHelper.getUserInput();
-        String[][] assignNewProgramsValues = assignNewPrograms(new String[]{"NewProgram1", "NewProgram2", "NewProgram3"});
         // System.out.println("Welcome to the NewProgram Guessing Game!");
         // System.out.println(gameHelper.printGameStatus(assignNewProgramsValues));
         ArrayList<NewProgram> NewPrograms = new ArrayList<NewProgram>();
         
-        NewProgram NewProgram1 = new NewProgram();
-        NewProgram1.setName("Onion");
+        NewProgram one = new NewProgram();
+        one.setName("Onion");
 
-        NewProgram NewProgram2 = new NewProgram();
-        NewProgram2.setName("Tomato");
+        NewProgram two = new NewProgram();
+        two.setName("Tomato");
 
-        NewProgram NewProgram3 = new NewProgram();
-        NewProgram3.setName("Potato");
+        NewProgram three = new NewProgram();
+        three.setName("Potato");
         
-        NewPrograms.add(NewProgram1);
-        NewPrograms.add(NewProgram2);
-        NewPrograms.add(NewProgram3);
+        NewPrograms.add(one);
+        NewPrograms.add(two);
+        NewPrograms.add(three);
 
-        for(NewProgram NewProgram : NewPrograms) {
-            String[] locations = anotherClass.createNewProgram(gameHelper.getDirection(7, 5)[0], gameHelper.getDirection(7, 5)[1]);
-            NewProgram.setLocations(locations);
-            System.out.println("##############################################################");
-            System.out.println("######################### Start ##############################");
-            System.out.println("##############################################################");
-            System.out.println("NewProgram Name: " + NewProgram.getName());
-            System.out.println("Locations: ");
-            for (String location : locations) {
-                System.out.print(location + " ");
-            }
-            System.out.println();
-            System.out.println("##############################################################");
-            System.out.println("########################## End ###############################");
-            System.out.println("##############################################################");
-            System.out.println();
+        System.out.println(NewPrograms.size() + " NewPrograms created.");
+        ArrayList<String> s1t1 = new ArrayList<String>();
+        
+        for(int np = 0; np < NewPrograms.size(); np++) {
+            NewProgram newProgram = NewPrograms.get(np);
+            Boolean[] direction = gameHelper.getDirection(7, 5);
+            s1t1.clear();
+            s1t1 = anotherClass.createNewProgram(direction[0], direction[1]);
+
+            System.out.println("NewProgram: " + newProgram.getName() + " created with locations: " + s1t1.get(0) + ", " + s1t1.get(1) + ", " + s1t1.get(2)  );
+
+            ArrayList<String> st = new ArrayList<String>();
+            st.add(s1t1.get(0));
+            st.add(s1t1.get(1));
+            st.add(s1t1.get(2));
+            
+            newProgram.setLocations(st);
         }
+        
+
+        System.out.println(one.getLocations());
+        System.out.println(two.getLocations());
+        System.out.println(three.getLocations());
+
+        // int i = 1;
+        // for(NewProgram NewProgram : NewPrograms) {
+        //     System.out.println(i+++". " + NewProgram.getName() + " at locations: " + NewProgram.getLocations());
+        // }
+
         // while(!userInput.equalsIgnoreCase("exit")) {
             // System.out.println("You guessed: " + userInput);
             // String[][] feedback = playGame.checkGuess(userInput, assignNewProgramsValues);
@@ -57,10 +69,9 @@ class NewProgramBuster {
         String[][] createdNewPrograms = new String[NewPrograms.length][4];
         for (int i = 0; i < NewPrograms.length; i++) {
             Boolean[] direction = gameHelper.getDirection(7, 5);
-            String[] st = anotherClass.createNewProgram(direction[0], direction[1]);
-            createdNewPrograms[i][0] = NewPrograms[i];
-            for (int j = 1; j <= st.length; j++) {
-                createdNewPrograms[i][j] = st[j-1];
+            ArrayList<String> st = anotherClass.createNewProgram(direction[0], direction[1]);
+            for (int j = 0; j < st.size(); j++) {
+                createdNewPrograms[i][j] = st.get(j);
             }
         }
         return createdNewPrograms;
@@ -69,22 +80,36 @@ class NewProgramBuster {
 
 class NewProgram {
     private String name;
-    private String[] locations;
+    private ArrayList<String> locations = new ArrayList<>();
+
+    public void clearLocations() {
+        this.locations.clear();
+    }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setLocations(String[] locations) {
-        this.locations = locations;
+    public void setLocations(ArrayList<String> getLocations) {
+        this.clearLocations();
+        // System.out.println("Setting locations for NewProgram: " + getLocations);
+        int i = 0;
+        for(String location : getLocations) {
+            this.locations.add(i++, location );
+            // System.out.println(i+" Setting location: " + location + " for NewProgram: " + this.name);
+
+            if(i == 3) {
+                break; // Only set three locations
+            }
+        }
     }
 
     public String getName() {
         return name;
     }
 
-    public String[] getLocations() {
-        return locations;
+    public ArrayList<String> getLocations() {
+        return this.locations;
     }
 }
 
@@ -94,7 +119,6 @@ class NewProgram {
  * Put the NewPrograms on a grid
  */
 class CreateNewPrograms {
-    private int NewProgram_SIZE = 3;
     private int BOARD_SIZE = 7;
 
     private String[] NewProgramsLetters = {"a", "b", "c", "d", "e", "f", "g"};
@@ -102,23 +126,16 @@ class CreateNewPrograms {
     
     private GameHelper gameHelper = new GameHelper();
 
-    public String[] NewProgram = new String[NewProgram_SIZE];
+    public ArrayList<String> NewProgram = new ArrayList<String>();
 
-    public String[] createNewProgram(Boolean growRight, Boolean growDown) {
-
-        System.out.println("Grow right? =>" + growRight);
-        System.out.println("Grow Down? =>" + growDown);
+    public ArrayList<String> createNewProgram(Boolean growRight, Boolean growDown) {
 
         while(!(growRight && growDown)) {
-            System.out.println("Inside while loop ");
-
             if(growRight && !growDown) {
-                System.out.println("Growing right");
                 return growRight();
             }
 
             if(!growRight && growDown) {
-                System.out.println("Growing Down");
                 return growDown();
             }
 
@@ -128,14 +145,13 @@ class CreateNewPrograms {
         }
 
         if(growRight && growDown) {
-            System.out.println("Growing both ways");
              return growRight();
         }
 
         return NewProgram;  
     }
 
-    private String[] growRight() {
+    private ArrayList<String> growRight() {
         int randomLetterIndex = gameHelper.getRandomIndex(BOARD_SIZE);
 
         String firstLetter = NewProgramsLetters[randomLetterIndex];
@@ -147,17 +163,16 @@ class CreateNewPrograms {
         int secondNumber = firstNumber+1;
         int thirdNumber = secondNumber+1;
 
-        NewProgram[0] = firstLetter + firstNumber;
-        NewProgram[1] = firstLetter + secondNumber;
-        NewProgram[2] = firstLetter + thirdNumber;
+        NewProgram.add(firstLetter + firstNumber);
+        NewProgram.add(firstLetter + secondNumber);
+        NewProgram.add(firstLetter + thirdNumber);
         
         return NewProgram;
     }
 
-    private String[] growDown() {
+    private ArrayList<String> growDown() {
         int randomLetterIndex = gameHelper.getRandomIndex(BOARD_SIZE-2);
-
-        System.out.println("Random letter index: " + randomLetterIndex);
+        
         String firstLetter = NewProgramsLetters[randomLetterIndex];
 
         String selectedNumber = possibleNumbers[gameHelper.getRandomIndex(5)];
@@ -167,9 +182,9 @@ class CreateNewPrograms {
         String secondLetter = NewProgramsLetters[1+randomLetterIndex];
         String thirdLetter = NewProgramsLetters[2+randomLetterIndex];
 
-        NewProgram[0] = firstLetter + firstNumber;
-        NewProgram[1] = secondLetter + firstNumber;
-        NewProgram[2] = thirdLetter + firstNumber;
+        NewProgram.add(firstLetter + firstNumber);
+        NewProgram.add(secondLetter + firstNumber);
+        NewProgram.add(thirdLetter + firstNumber);
 
         return NewProgram;
     }
